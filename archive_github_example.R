@@ -21,10 +21,33 @@ library(googledrive)
 # https://gargle.r-lib.org/articles/non-interactive-auth.html
 options(gargle_oauth_email = "*@noaa.gov")
 
-# Download locally ----
+# Download github files (minus source code) locally ----
 local_dest_folder <- "download_archives"
 gitcellar::download_organization_repos(org, dest_fold = local_dest_folder)
 
+tar_files <- list.files(local_dest_folder, recursive = TRUE)
+tar_files_full <- list.files(local_dest_folder, recursive = TRUE,   full.names = TRUE)
+# use info in tar_files to get the repo names in the same order as the tar_files
+repo_names <- strsplit(tar_files, split = "/")
+repo_names <- unlist(lapply(repo_names, function (x) x[1]))
+repo_names <- strsplit(repo_names, split = paste0("archive-", org, "_"))
+repo_names <- unlist(lapply(repo_names, function (x) x[2]))
+
+# clone git repos to include source code ----
+# TODO: could also do this for wikis, if we really wanted to.
+
+current_tar_path <- tar_files_full[1]
+current_repo_name <- repo_names[1]
+new_tar_path <- file.path(dirname(current_tar_path), "tmp_files")
+untar(current_tar_path, exdir = new_tar_path)
+archive_url <- paste0("https://github.com/", org, "/", current_repo_name , ".git")
+folder_to_clone_in <- file.path(new_tar_path, "source_code")
+gert::git_clone(archive_url, bare = FALSE, path = folder_to_clone_in)
+# recompress with a new name
+tar(tarfile = "test.tar.gz",  compression = "gzip",
+  files = list.files(new_tar_path, full.names = TRUE, all.files = T, recursive = TRUE))
+
+gert::git_archive_zip(file = "test.zip", repo = folder_to_clone_in)
 # upload to gdrive ----
 files_to_upload <- list.files(local_dest_folder, recursive = TRUE)
 lapply(files_to_upload, function(archive_file, local_dest_folder) {
