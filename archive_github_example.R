@@ -22,12 +22,17 @@ library(gert)
 # https://gargle.r-lib.org/articles/non-interactive-auth.html
 options(gargle_oauth_email = "*@noaa.gov")
 
-# Download github files (minus source code) locally ----
+# Download github files locally ----
+# note to see the source code, you would need to clone the .git 
+# folder to another folder. All the files are there, but not visible,
+# because this is a bare git repository.
 local_dest_folder <- "download_archives"
 gitcellar::download_organization_repos(org, dest_fold = local_dest_folder)
 
-# download source code manually ----
-# TODO: could also do this for wikis, if we really wanted to.
+# download source code separately ----
+# Note that this isn't really necessary, but makes it easier to see the source code quickly.
+# the soruce code does exist within the tar.gz files that gitcellar::download_organization_repos
+# creates
 tar_files <- list.files(local_dest_folder, recursive = TRUE)
 tar_files_full <- list.files(local_dest_folder, recursive = TRUE,   full.names = TRUE)
 # use info in tar_files to get the repo names in the same order as the tar_files
