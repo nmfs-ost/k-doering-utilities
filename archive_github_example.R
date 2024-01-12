@@ -29,31 +29,6 @@ options(gargle_oauth_email = "*@noaa.gov")
 local_dest_folder <- "download_archives"
 gitcellar::download_organization_repos(org, dest_fold = local_dest_folder)
 
-# download source code separately ----
-# Note that this isn't really necessary, but makes it easier to see the source code quickly.
-# the soruce code does exist within the tar.gz files that gitcellar::download_organization_repos
-# creates
-tar_files <- list.files(local_dest_folder, recursive = TRUE)
-tar_files_full <- list.files(local_dest_folder, recursive = TRUE,   full.names = TRUE)
-# use info in tar_files to get the repo names in the same order as the tar_files
-repo_names <- strsplit(tar_files, split = "/")
-repo_names <- unlist(lapply(repo_names, function (x) x[1]))
-repo_names <- strsplit(repo_names, split = paste0("archive-", org, "_"))
-repo_names <- unlist(lapply(repo_names, function (x) x[2]))
-
-
-for (i in seq_along(tar_files_full)) {
-  current_tar_path <- tar_files_full[i]
-  current_repo_name <- repo_names[i]
-  current_zip_name <- file.path(dirname(current_tar_path),
-    paste0("archive-", org, "_", current_repo_name, "-source_code.zip"))
-  archive_url <- paste0("https://github.com/", org, "/", current_repo_name , ".git")
-  folder_to_clone_in <- file.path(dirname(current_tar_path), "source_code")
-  gert::git_clone(archive_url, bare = FALSE, path = folder_to_clone_in)
-  gert::git_archive_zip(file = current_zip_name, repo = folder_to_clone_in)
-  unlink(folder_to_clone_in, recursive = TRUE, force = TRUE)
-}
-
 # upload to googledrive ----
 files_to_upload <- list.files(local_dest_folder, recursive = TRUE)
 lapply(files_to_upload, function(archive_file, local_dest_folder) {
