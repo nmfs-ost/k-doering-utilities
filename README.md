@@ -1,4 +1,8 @@
-# backup-gdrive
+# k-doering-utilitites
+
+Includes utiliities for backing up github to google drive, and changing ownership on google drive.
+
+These were scripts @k-doering-NOAA found useful, but there is no promise that they will be maintained.
 
 Back up github repositories to google drive using the packages gitcellar and google drive.
 
