@@ -5,21 +5,24 @@
 
 library(googledrive)
 
-# get list of all google drive files in the ss3 drive
-files <- googledrive::drive_ls(
-    path = "https://drive.google.com/drive/folders/0B4-NgOrQ7c8IMEJOMFlFUzlia2s", 
-    recursive = FALSE)
+# ----- to change
+# email of new owner
+transfer_to_email <- "first.last@noaa.gov"
+# path to folder to loop through
+path_to_folder <- "https://drive.google.com/drive/u/0/folders/numbersand-letters"
+
+#------ script to run
 
 # loop through the files (just copy/paste in new paths to drive_ls, could try to automate this in the 
 #future). However, there are some files that cause the api to fail, so doing a 
 # huge group of files at once may not pay off (at least at this stage of the code)
 
-test <- googledrive::drive_ls("https://drive.google.com/drive/u/0/folders/11SGmfgDwEx0fLJLB7Y-KfugOUDkGBN7I", 
+all_files <- googledrive::drive_ls(path_to_folder, 
 recursive = TRUE)
 
 # filter by which ones are owned by me
-owned_by_me <- unlist(lapply(test$drive_resource, function(x) x$ownedByMe))
-files_owned_by_me <- test[owned_by_me,]
+owned_by_me <- unlist(lapply(all_files$drive_resource, function(x) x$ownedByMe))
+files_owned_by_me <- all_files[owned_by_me,]
 to_rm <- grep("shortcut", unlist(lapply(files_owned_by_me$drive_resource, function(x) x$mimeType)))
 if(length(to_rm) > 0) {
 files_to_change <- files_owned_by_me[-to_rm,]
@@ -27,8 +30,8 @@ files_to_change <- files_owned_by_me[-to_rm,]
     files_to_change <- files_owned_by_me
 }
 
-# reassign those to rick.
+# reassign these.
 drive_share(as_id(files_to_change$id), role = "owner", type = "user", 
-  emailAddress = "richard.methot@noaa.gov", transferOwnership = TRUE 
+  emailAddress = transfer_to_email, transferOwnership = TRUE 
   )
 
