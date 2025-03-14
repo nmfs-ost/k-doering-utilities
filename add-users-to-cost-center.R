@@ -23,7 +23,7 @@ all_GHEC_users <- read_excel("all_users.xlsx")
 
 # example with usernames in the column of a spreadsheet
 # Get the names of people to add to the cost center (not)
-filename <- "nefsc_names.xlsx"
+filename <- "fmc_names.xlsx"
 office_usernames <- read_excel(filename)
 
 #check who is found
@@ -46,7 +46,7 @@ ppl_to_add <- ppl_to_add$usernames
 
 cost_centers <- gh("GET /enterprises/{enterprise}/settings/billing/cost-centers", enterprise = "NOAA-NMFS")
 # will need to dig more into parsing this structure when there are multiple cost centers
-id <- cost_centers[[1]][[5]]$id
+id <- cost_centers[[1]][[13]]$id
 
 ## verify users part of enterprise ---
 
@@ -58,7 +58,7 @@ length(ppl_to_add) #check less than 50, otherwise run in chunks
 
 cost_centers <- gh(
   "POST /enterprises/{enterprise}/settings/billing/cost-centers/{cost_center_id}/resource", 
-  enterprise = "NOAA-NMFS", cost_center_id = id, users = as.array(ppl_to_add[101:148]))
+  enterprise = "NOAA-NMFS", cost_center_id = id, users = as.array(ppl_to_add))
 
 # check added
 cost_centers <- gh("GET /enterprises/{enterprise}/settings/billing/cost-centers", enterprise = "NOAA-NMFS")
