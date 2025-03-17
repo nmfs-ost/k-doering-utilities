@@ -45,10 +45,18 @@ ppl_to_add <- ppl_to_add$usernames
 ## Get the cost center id ----
 
 cost_centers <- gh("GET /enterprises/{enterprise}/settings/billing/cost-centers", enterprise = "NOAA-NMFS")
-# will need to dig more into parsing this structure when there are multiple cost centers
-id <- cost_centers[[1]][[13]]$id
+
+
+cost_center_ids <- unlist(lapply(cost_centers[[1]], function(x) x$id))
+cost_center_names <- unlist(lapply(cost_centers[[1]], function(x) x$name))
+cost_center_ref<- data.frame(name = cost_center_names, id = cost_center_ids)
+
+#define the ID
+id <- cost_center_ref[cost_center_ref$name == "WCRO", "id"]
+
 
 ## verify users part of enterprise ---
+ppl_to_add <- c("add gh usernames here")
 
 
 
